@@ -4,13 +4,13 @@ const Importer = require('mysql-import');
 
 describe('Desafios iniciais', () => {
   let sequelize;
+  const {
+    MYSQL_USER,
+    MYSQL_PASSWORD,
+    HOSTNAME
+  } = process.env;
 
   beforeAll(async () => {
-    const {
-      MYSQL_USER,
-      MYSQL_PASSWORD,
-      HOSTNAME
-    } = process.env;
 
     const importer = new Importer(
       { user: MYSQL_USER, password: MYSQL_PASSWORD, host: HOSTNAME }
@@ -25,6 +25,14 @@ describe('Desafios iniciais', () => {
 
   afterAll(async () => {
     await sequelize.query('DROP DATABASE w3schools;', { type: 'RAW' });
+
+    if (process.argv.some(arg => arg === '-restore')) {
+      const importer = new Importer(
+        { user: MYSQL_USER, password: MYSQL_PASSWORD, host: HOSTNAME }
+      );
+  
+      await importer.import('./w3schools.sql');
+    }
 
     sequelize.close();
   });
